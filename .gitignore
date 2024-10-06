@@ -1,0 +1,55 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution files
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Pip installations
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Virtual environments
+venv/
+.env/
+env/
+.venv/
+ENV/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# Pytest cache files
+.cache/
+.pytest_cache/
+
+# MyPy cache
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# PEP 582; local package installation directory (`__pypackages__/`)
+__pypackages__/
+
+# Log files
+*.log
+
+# IDE settings
+.vscode/
+.idea/
+
+# Local settings and environment variables
+*.env
+.env.*
+.envrc
+
+# Local folders to ignore
+workspace/
+projects/
+source/github_token.txt
+source/__pypackages__/
+source/workspace/
