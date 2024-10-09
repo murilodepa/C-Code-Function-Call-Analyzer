@@ -6,6 +6,7 @@ PROJECTS_DIR = "projects"
 CLONED_PROJECTS_DIR = os.path.join(BASE_DIR, PROJECTS_DIR)
 OUTPUT_DIR = "output"
 OUTPUT_CSV_FILE_NAME = "function_call_graph.csv"
+REPOSITORIES = "repositories.txt"
 
 def extract_relative_path(path):
     """Extracts the path that comes after 'projects/' in the given path."""
