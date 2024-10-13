@@ -9,8 +9,13 @@ def get_github_token():
     
     # Check if the token file exists
     if os.path.exists(token_file):
-        with open(token_file, "r") as file:
-            token = file.read().strip()
-            return token
+        try:
+            with open(token_file, "r") as file:
+                token = file.read().strip()
+                if not token:
+                    raise ValueError(f"{token_file} is empty. Please add your GitHub token inside the file.")
+                return token
+        except (IOError, OSError) as e:
+            raise IOError(f"Error reading {token_file}: {e}")
     else:
         raise FileNotFoundError(f"{token_file} not found. Please make sure it contains your GitHub token.")

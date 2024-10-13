@@ -1,5 +1,5 @@
 
-        importCpg("/home/murilodepa/Documents/master/API_Usage_Patterns_Extractor/projects/Experiments-of-Operational-System-A/Tarefa1.c.cpg.bin")
+        importCpg("/home/murilodepa/Documents/master/API_Usage_Patterns_Extractor/projects/radare2/ppc-dis.c.cpg.bin")
         val edges = cpg.call
         .filterNot(_.name.startsWith("<operator>")) // Ignore operators if necessary
         .map { call =>

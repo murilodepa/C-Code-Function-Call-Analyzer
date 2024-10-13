@@ -11,15 +11,15 @@ def extract_repo_info(repo_link):
     if len(parts) == 2:
         repo_owner = parts[0]  # First element is the owner
         repo_name = parts[1]    # Second element is the repository name
+        print(f"Extracted repository info - Owner: {repo_owner}, Repository: {repo_name}")
         return repo_owner, repo_name
     else:
         raise ValueError("The URL is not in the expected format.")
 
 def get_files_from_github(repo_owner, repo_name, path="", base_path=""):
-    
+    print(f"Fetching files from GitHub repository: {repo_owner}/{repo_name}, Path: {path}")
     api_url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/contents/{path}"
     github_token = get_github_token()
-    print("github_token" + github_token)
     
     headers = {
         "Authorization": f"token {github_token}"
@@ -38,7 +38,7 @@ def get_files_from_github(repo_owner, repo_name, path="", base_path=""):
                 new_path = os.path.join(base_path, item['name'])
                 get_files_from_github(repo_owner, repo_name, path=item['path'], base_path=new_path)
     else:
-        print(f"Erro ao acessar {api_url}. Código de status: {response.status_code}")
+        print(f"Error to access {api_url}. Status code: {response.status_code}")
 
 def download_file(file_url, base_path, original_path):
     local_file_path = os.path.join(base_path, os.path.basename(original_path))
@@ -50,11 +50,10 @@ def download_file(file_url, base_path, original_path):
         if response.status_code == 200:
             with open(local_file_path, 'w') as f:
                 f.write(response.text)
-            print(f"Arquivo {local_file_path} criado.")
         else:
-            print(f"Erro ao baixar arquivo {file_url}. Código de status: {response.status_code}")
+            print(f"Error to download the file: {file_url}. Status code: {response.status_code}")
     except Exception as e:
-        print(f"Ocorreu um erro ao baixar o arquivo {file_url}: {e}")
+        print(f"Error to download the file: {file_url}: {e}")
 
 def download_repositories():
   
@@ -66,9 +65,6 @@ def download_repositories():
         repo_link = repo_link.strip()
         try:
             repo_owner, repo_name = extract_repo_info(repo_link)
-            print("repo_link: " + repo_link)
-            print("repo_owner: " + repo_owner)
-            print("repo_name: " + repo_name)
 
             # Creates a subdirectory for each repository
             repo_directory = os.path.join(CLONED_PROJECTS_DIR, repo_name)
@@ -78,11 +74,12 @@ def download_repositories():
                 print(f"The repository {repo_name} already exists in {repo_directory}. Skipping cloning.")
                 continue
             
+            print(f"Creating directory for repository {repo_name} at {repo_directory}")
             get_files_from_github(repo_owner, repo_name, base_path=repo_directory)
         except ValueError as ve:
-            print(f"Erro: {ve}")
+            print(f"Error: {ve}")
         except Exception as e:
-            print(f"Ocorreu um erro: {e}")
+            print(f"Error: {e}")
 
 #if __name__ == "__main__":
 #    download_repositories()
