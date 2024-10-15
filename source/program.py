@@ -110,20 +110,22 @@ class JoernAnalyzer:
 
     def extract_call_graph(self, cpg_output_path, project_name, c_file, writer):
         """Extract the call graph and save it directly to the CSV."""
-        # Scala query script to extract the call graph
+        # Scala query script to extract the call graph, excluding specific assignment operators
         query_script = f"""
         importCpg("{cpg_output_path}")
+    
+        // Exclude operators as callees
         val edges = cpg.call
-        .filterNot(_.name.startsWith("<operator>")) // Ignore operators if necessary
+        .filterNot(call => call.name.startsWith("<operator>") || call.name.startsWith("<operators>"))  // Exclude operators
         .map {{ call =>
-        val caller = call.method.fullName       // Full name of the calling function
-        val callee = call.name                  // Name of the called function
-        (caller, callee)                        // Return the tuple (caller, callee)
+            val caller = call.method.fullName   // Full name of the calling function
+            val callee = call.name              // Name of the called function
+            (caller, callee)                    // Return the tuple (caller, callee)
         }}.l
 
         // Print each edge in the call graph
         edges.foreach {{ case (caller, callee) =>
-        println(s"Caller: $caller -> Callee: $callee")  
+        println(s"Caller: $caller -> Callee: $callee")
         }}
         """
 
@@ -131,22 +133,28 @@ class JoernAnalyzer:
         query_file = "call_graph_query.sc"
         try:
             with open(query_file, "w", encoding="utf-8") as f:
-                # Write the query to a file
                 f.write(query_script)
         except IOError as e:
             print(f"Error writing the Scala query file: {e}")
             sys.exit(1)
 
         # Execute Joern via Joern-CLI
-        result = subprocess.run(
-            ["joern", "--script", query_file],
-            capture_output=True, text=True
-        )
-        if result.returncode != 0:
-            print(f"Error running the query for {cpg_output_path}: {result.stderr}")
+        print(f"Running the query in Joern to extract the call graph for {cpg_output_path}...")
+        try:
+            result = subprocess.run(
+                ["joern", "--script", query_file],
+                capture_output=True, text=True
+            )
+        except subprocess.CalledProcessError as e:
+            print(f"Error executing Joern query: {e}")
             return  # Continue with the next file instead of exiting the script
 
-        # Save the result of the call graph extraction directly in the CSV
+        # Check for errors in the execution of the query
+        if result.returncode != 0:
+            print(f"Error running the query for {cpg_output_path}: {result.stderr}")
+            return  # Continue with the next file
+
+        # Save the result directly in the CSV
         self._save_csv(result.stdout, project_name, c_file, writer)
 
     def _save_csv(self, data, project_name, c_file, writer):
