@@ -2,8 +2,8 @@
 """
 This script provides a utility function to load and display a sample of a CSV file.
 It displays the first few rows, a preview of the content, and the total number of rows.
-Author: [Your Name]
-Date: [Today's Date]
+Author: [Lucas Rondon]
+Date: [8/11/2024]
 """
 
 import pandas as pd
