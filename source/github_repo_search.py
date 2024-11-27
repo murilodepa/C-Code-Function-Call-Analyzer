@@ -3,24 +3,27 @@ import os
 import requests
 from directory_manager import REPOSITORIES
 from get_github_token import get_github_token
+from advanced_github_repository_search import params2
 
-def get_repos(language="C", stars=">10000", sort="updated", per_page=30, page=1):
+def get_repos(page=1):
     url = "https://api.github.com/search/repositories"
     headers = {"Authorization": f"token {get_github_token()}"}
     
+    print("Params", params2)
+
     # Query parameters to filter repositories
-    params = {
-        "q": f"language:{language} stars:{stars}",
-        "sort": sort,
-        "order": "desc",
-        "per_page": per_page,
-        "page": page
-    }
+    # params = {
+    #     "q": f"language:{language} stars:{stars}",
+    #     "sort": sort,
+    #     "order": "desc",
+    #     "per_page": per_page,
+    #     "page": page
+    # }
     
-    print(f"Fetching page {page} of repositories with language '{language}' and stars '{stars}'...")
+    # print(f"Fetching page {page} of repositories with language '{language}' and stars '{stars}'...")
     
     # Sending request to the GitHub API
-    response = requests.get(url, headers=headers, params=params)
+    response = requests.get(url, headers=headers, params=params2)
     
     if response.status_code == 200:
         data = response.json()
@@ -50,7 +53,7 @@ def save_links_to_file(filename=REPOSITORIES):
     # Open the file for writing (append mode, to avoid overwriting if it already exists)
     with open(file_path, "a") as file:
         while True:
-            repos = get_repos(page=page, per_page=repos_per_page)
+            repos = get_repos(page=page)
             if not repos:
                 print(f"No more repositories to fetch. Stopping at page {page}.")
                 break  # Exit if there are no more repositories to retrieve

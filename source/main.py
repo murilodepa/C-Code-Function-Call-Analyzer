@@ -6,8 +6,11 @@ from csv_display import display_csv
 
 
 def main():
-    # print("Starting the process of saving GitHub repository links to a .txt file...")
-    # save_links_to_file()     # Save GitHub repository links to a file
+
+    # filtrando os repositorios por meio do filtro
+
+    print("Starting the process of saving GitHub repository links to a .txt file...")
+    save_links_to_file()     # Save GitHub repository links to a file
     
     # print("Starting the process of downloading repositories...")
     # download_repositories()     # Download repositories from GitHub
