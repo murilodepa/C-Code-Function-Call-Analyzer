@@ -1,4 +1,3 @@
-
 import os
 import requests
 from directory_manager import REPOSITORIES
@@ -8,73 +7,60 @@ from advanced_github_repository_search import params2
 def get_repos(page=1):
     url = "https://api.github.com/search/repositories"
     headers = {"Authorization": f"token {get_github_token()}"}
-    
-    print("Params", params2)
 
-    # Query parameters to filter repositories
-    # params = {
-    #     "q": f"language:{language} stars:{stars}",
-    #     "sort": sort,
-    #     "order": "desc",
-    #     "per_page": per_page,
-    #     "page": page
-    # }
-    
-    # print(f"Fetching page {page} of repositories with language '{language}' and stars '{stars}'...")
-    
-    # Sending request to the GitHub API
-    response = requests.get(url, headers=headers, params=params2)
-    
+    # Ajustando os parâmetros para remover filtros inválidos, como 'code_lines'
+    params = params2.copy()
+    params["page"] = page  # Adicionando o número da página dinamicamente
+
+    print(f"Params: {params}")  # Log para depuração
+
+    # Enviando a requisição para a API do GitHub
+    response = requests.get(url, headers=headers, params=params)
+
     if response.status_code == 200:
         data = response.json()
-        
         print(f"Successfully retrieved {len(data['items'])} repositories from page {page}.")
-        
-        return data['items']  # Returns the list of repositories on the current page
+        return data['items']  # Retorna a lista de repositórios da página atual
     else:
-        print(f"Request error: {response.status_code}. Unable to fetch repositories.")
+        print(f"Request error: {response.status_code}. Response content: {response.text}")
         return []
 
 def save_links_to_file(filename=REPOSITORIES):
-    # Get the current directory where the script is running
-    current_dir = os.path.dirname(os.path.abspath(__file__))  # Gets the script directory
-    file_path = os.path.join(current_dir, filename)  # Concatenates the full path to the file
+    # Diretório atual do script
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(current_dir, filename)
 
     page = 1
-    repos_per_page = 30  # Maximum number of repositories per page
-    all_repos = set() # Using a set to avoid duplicates
+    all_repos = set()  # Conjunto para evitar duplicatas
 
-    # If the file already exists, load the existing repository links to avoid duplicates
+    # Carregar links existentes para evitar duplicados
     if os.path.exists(file_path):
         with open(file_path, "r") as file:
             all_repos.update([line.strip() for line in file.readlines()])
         print(f"Loaded {len(all_repos)} existing repository links from {file_path}.")
 
-    # Open the file for writing (append mode, to avoid overwriting if it already exists)
+    # Abrir o arquivo para escrita no modo de append
     with open(file_path, "a") as file:
         while True:
             repos = get_repos(page=page)
             if not repos:
                 print(f"No more repositories to fetch. Stopping at page {page}.")
-                break  # Exit if there are no more repositories to retrieve
+                break  # Saída se não houver mais repositórios
 
             new_links_count = 0
-            # Writing the links to the file
             for repo in repos:
-
                 repo_url = repo['html_url']
-                if repo_url not in all_repos:  # Avoid duplicating links
+                if repo_url not in all_repos:  # Evitar duplicação
                     file.write(repo_url + "\n")
                     all_repos.add(repo_url)
                     new_links_count += 1
 
             print(f"Saved {new_links_count} new repository links from page {page}.")
 
-            # If no new repositories were added, the program can stop early
-            if new_links_count == 0:
+            if new_links_count == 0:  # Parar se não houver novos links
                 print("No new repositories found. Stopping early.")
                 break
             
-            page += 1  # Fetch the next page
+            page += 1  # Próxima página
 
     print(f"Total of {len(all_repos)} unique repository links saved to {file_path}.")
